@@ -10,29 +10,37 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import kotlin.random.Random
 
-class AlarmWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params) {
+class AlarmWorker(
+    context: Context, workerParams: WorkerParameters
+) : Worker(context, workerParams) {
 
     override fun doWork(): Result {
-        val title = inputData.getString("title") ?: ""
-        val description = inputData.getString("description") ?: ""
-        showNotification(title, description)
+        val title = inputData.getString("title")
+        val desc = inputData.getString("desc")
+
+        showNotification(title,desc)
         return Result.success()
     }
 
-    private fun showNotification(title: String, description: String) {
-        val context = applicationContext
-        val notificationManager = NotificationManagerCompat.from(context)
-        val channelId = "alarm_channel"
+    private fun showNotification(title: String?, desc: String?) {
+        val channelId = "Alarm_channel_gdsc_iitbhu"
+        val notificationManager = NotificationManagerCompat.from(applicationContext)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel =
-                NotificationChannel(channelId, "Alarm Channel", NotificationManager.IMPORTANCE_HIGH)
+            val channel = NotificationChannel(
+                channelId,
+                "Alarm Channel",
+                NotificationManager.IMPORTANCE_HIGH)
             notificationManager.createNotificationChannel(channel)
         }
-        val notification = NotificationCompat.Builder(context, channelId)
+
+        // creating a notification
+        val notification = NotificationCompat.Builder(applicationContext, channelId)
             .setContentTitle(title)
-            .setContentText(description)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentText(desc)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
             .build()
+
         notificationManager.notify(Random.nextInt(), notification)
     }
 }

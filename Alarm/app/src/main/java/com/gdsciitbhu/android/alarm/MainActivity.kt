@@ -1,10 +1,13 @@
 package com.gdsciitbhu.android.alarm
 
-import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.EditText
+import androidx.work.Constraints
+import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.workDataOf
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
@@ -12,16 +15,24 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val time = 1L
-        val title = "Hello World"
-        val description = "It's morning already"
-        val workManager = WorkManager.getInstance(this)
-        workManager.enqueue(
-            OneTimeWorkRequestBuilder<AlarmWorker>()
-                .setInitialDelay(time, TimeUnit.MINUTES)
-                .setInputData(workDataOf("title" to title, "description" to description))
-                .build()
-        )
+        findViewById<FloatingActionButton>(R.id.button).setOnClickListener {
 
+            val title = findViewById<EditText>(R.id.title).text.toString()
+            val desc = findViewById<EditText>(R.id.desc).text.toString()
+            val timeInterval = findViewById<EditText>(R.id.timeInterval).text.toString().toLong()
+
+            val inputData = Data.Builder()
+                .putString("title",title)
+                .putString("desc",desc)
+                .build()
+
+            val workRequest = OneTimeWorkRequestBuilder<AlarmWorker>()
+                .setInputData(inputData)
+                .setConstraints(Constraints.Builder().setRequiresCharging(true).build())
+                .setInitialDelay(timeInterval,TimeUnit.MINUTES)
+                .build()
+
+            WorkManager.getInstance(this).enqueue(workRequest)
+        }
     }
 }
